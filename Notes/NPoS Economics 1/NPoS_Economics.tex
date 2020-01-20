@@ -1,0 +1,182 @@
+\documentclass[a4,11pt]{paper}
+%\usepackage{setspace}
+\usepackage{amsmath,amssymb}         
+\usepackage{geometry}
+
+ \geometry{
+letterpaper,
+left=30mm,
+right=30mm,
+top=25mm,
+bottom=25mm,
+}
+
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{cases}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{braket}
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{hyperref}
+\usepackage{amssymb}
+\usepackage{float}
+
+% My definitions
+\def\be{\begin{equation}}
+\def\ee{\end{equation}}
+\def\ba{\begin{eqnarray}}
+\def\ea{\end{eqnarray}}
+\def\bald{\begin{aligned}}
+\def\eald{\end{aligned}}
+\newcommand{\per}{\, .}
+\newcommand{\com}{\, ,}
+\newcommand{\eref}[1]{Eq.~(\ref{#1})}
+
+%\markright{Eray Sabancilar\hfill Research Statement\hfill}
+\title{\vspace{-60pt} \centering NPoS Economics \\ \qquad  \vspace{-20pt} \\ \large{Eray Sabancilar, 
+\\ Web3 Foundation, January 9, 2020} \vspace{-40pt}}
+
+
+\begin{document}
+\maketitle
+
+%=====================================================================================
+\section*{Executive Summary}
+%=====================================================================================
+Interactions of the NPoS agents, namely, nominators and validators, create an economic system, where validators get rewarded for completing tasks and get slashed for misbehaving, both of which are also shared with their nominators. As these actions result in changes in the outstanding dot supply, and hence, staking rate, they affect the interest and inflation rates. Polkadot aims to provide attractive incentives for using the network by minting dots, keeping a desired level of liquidity and guaranteeing the dot value stability. Therefore, we need economic mechanisms that can gauge the interest and inflation rates dynamically given the parameters and the constraints of the network in order to deliver these desired policies.
+
+We provide two complementary methods in order to develop a dynamic understanding of the interest and inflation rates: i) An agent based stochastic microeconomic model, ii) A macroeconomic model based on aggregate variables. We expect both approaches to yield similar yet independent conclusions, hence providing us a way to assess the consistency of our NPoS economics models.
+%, and test various scenarios and shocks that may appear in the network.
+
+\paragraph{i) An agent based stochastic microeconomic model:}
+We follow a bottom up approach to model actions and decisions of each NPoS agent with appropriate stochastic discrete processes. Then, we develop a microeconomic model built step by step starting with a set of simplifying assumptions, and then, we generalize it to more realistic cases. Our main purpose for developing a stochastic model is to be able to simulate NPoS economics and to test the effect of various parameters on the staking, interest and inflation rates. In the first version of the microeconomic model, we assume that all agents act and assign values randomly so that we can study the simplest version of the economic system to gain basic insights. As a second step, we add the usual assumption of economics that agents prefer actions that increase their expected utility, namely, they prefer more rewards whereas avoid slashing. We then define a stochastic optimal control problem where agents maximize their expected utility. In fact, we expect the outcome of this model to be more realistic than the randomly acting agent model since network participants are likely to behave rationally and optimally most of time. 
+
+\paragraph{ii) A macroeconomic model based on aggregate variables:}
+Inspired by the dynamic models developed by central banks for carrying out their monetary policy\footnote{See, e.g., Jordi Gali, ``{\it Monetary Policy, Inflation, and the Business Cycle: An Introduction to the New Keynesian Framework and Its Applications}, Princeton University Press, 2015.}, 
+we follow a top down approach to study the dynamics of the NPoS economy at the macro level, where we use time dependent aggregated variables, such as, total rewards \& slashing, dot supply, staking, interest and inflation rates. These discrete time variables allow us to construct a dynamic system described by an objective function of these variables and some parameters to be optimized with a set of constraints such as number of validators. The objective function is structured such that agents maximize rewards and minimize slashing by allowing various preferences and keeping track of the given constraints of the system. Then, it simply reduces to solving a constrained optimization problem with a set of difference equations with specified initial conditions. This macroeconomic model allows us to track the target staking, interest and inflation rates and gives us a handle for intervening during shocks leading to illiquidity, price instability, and unusually high or low interest rates.
+
+
+\newpage
+%=====================================================================================
+\section{An Agent Based Stochastic Microeconomic Model}
+\label{sec:micro}
+%=====================================================================================
+
+We want to study the economics of NPoS in order to understand how interest rate and inflation are driven by the behaviors and actions of validators and nominators. 
+%As a simple bottom up approach, we model each agent in the system with appropriate random variables, and then, aggregate the relevant quantities that contribute to the interest rate and the inflation of dots. 
+In this section, we assume that each agent behaves randomly, i.e., we do not consider the usual assumption that rational agents optimize their decisions and actions in order to increase their expected utility\footnote{The optimally behaving agent analysis will follow in Sec.~\ref{sec:utility}, where we define the relevant stochastic optimal control problem.}. 
+We discuss in detail the stochastic processes that drive the agent rewards and slashing as well as their relation to interest and inflation rates of dots in order to lay out the foundations of the microeconomic model of NPoS. In what follows, we assume that there are no commission and transaction fees, which are to be modeled separately. 
+
+%=======================
+\subsection{Validator Rewards}
+%=======================
+
+Number of points the validator $v$ accumulates in the given era $T$, $c_v(T)$, is a non-negative\footnote{A random variable, $z$, is said to be non-negative provided that $P(z<0) = 0$.}
+ discrete process that increases in time. We assume that $c_v(T)$ is a homogenous Poisson random variable:
+\be
+c_v(T) \sim Poi(\lambda_v T) \com
+\ee
+where $\lambda_v$ is the constant rate parameter\footnote{We note that in this simple model, we assume a constant rate parameter $\lambda_v$, which can be made time dependent in order to take into account time inhomogeneities of accumulating points.}
+ to be calibrated such that a representative validator does not exceed the maximum number of points that can be achieved in an epoch.
+% , namely, $c_v(t) \leq 45$, where $t$ is the epoch time scale.
+%{\bf eray: replace the bound with, e.g., 95\% quantile.}
+
+The total number of points accumulated by all validators in era $T$ is
+\be
+C(T) = \sum_{v = 1}^{N_v} c_v (T) \com
+\ee
+where $N_v \sim 1000$ is the number of total validators in the network, which we assume to be constant over time.
+
+At the end of each era, validator rewards in dots are decided by the ratio of their accumulated points to the total points in that era. Given the total payout in era $T$, $P(T)$, the dot payout to validator $v$ and its nominators is
+\be
+P_v(T) = \frac{C_v(T)}{C(T)} P(T) \per
+\ee
+Since the payout to the nominators backing validator $v$ is decided by the amount of staked dots, we next consider modeling the staking process.
+
+%=======================
+\subsection{Nominator Staking}
+%=======================
+
+There is no limit on the number of nominators, $N_n$, and the amount that each nominator stakes, $d_n$, except that the total amount of stakes cannot exceed the dots outstanding. The amount of dots the nominator $n$ stakes for the validator $v$, $b_v^n$, is a non-negative random process, an $N_n \times N_v$ matrix,
+%For simplicity, we assume that $b_v^n$ is equally distributed among $N_v^n$ validators:
+%\be
+%b_v^n = \frac{d_n}{N_v^n} \com
+%\ee
+where the number of validators a nominator can back is limited to $N_v^n \leq 16$. In other words, each row of the $b_v^n$ matrix will have at most 16 non-empty values\footnote{To test our simulation, we assume that the nominators are the validators in this first implementation, and hence, they only back themselves. A random validator assignment algorithm is to be implemented. 
+%We then generalize it to a random validator assignment algorithm. We generate two sets of random numbers for validator assignments: i) A random integer $\in [1,16]$ to decide how many validators are backed by a nominator, ii) A random integer ?
+}.  
+%In what follows, we assume\footnote{$N_v^n$ may also be considered to be a random variable in order to capture the variation in the number of validators chosen by each validator.} that $N_v^n = 16$. 
+
+We next specify the distribution of the amount of stakes owned by nominator $n$ as a lognormal process since we want it to be non-negative:
+\be
+d_n = e^{\mu_d + \sigma_d z} \com \qquad z \sim N(0,1) \com
+\ee 
+where $z$ is a standard normal random variable. We need to calibrate the parameters $\mu_d$ and $\sigma_d$ so that we are not too far from the expected stake distribution and respect the total dots outstanding. We also note that depending on the empirical evidence, we may consider different probability distributions capturing the observed staking more accurately, e.g., with more positive or negative skew or fatter or thinner tails than the lognormal distribution. In order to improve the model further, we will use the empirical data from the test network.
+
+We can then define the staking rate as the ratio, $x$, of the all staked dots to the total dots outstanding at that era, $D_T$, as
+\be \label{x}
+x = \frac{1}{D_T} \sum_{n=1}^{N_n} d_n \com
+\ee 
+where $N_n$ is the total number of nominators, which we also assume to be constant for now. Since we want enough liquidity in the system, we target the staking rate to be in the range $x \in (0.3,0.6)$. We can calibrate the parameters $\mu_d$ and $\sigma_d$ so that we achieve, e.g., $x \sim 0.5$.  
+
+%=======================
+\subsection{Slashing}
+%=======================
+
+Nominator stakes are slashed if the validators that they back misbehave, namely for unresponsiveness or equivocation. We model the total slashing of the nominator $n$ in the era $T$, $S_n(T)$, in terms of unresponsiveness and equivocation as
+\be
+S_n(T) = \left(U_n f_u + E_n f_e \right) d_n \com
+\ee
+where for unresponsiveness and equivocation, we respectively have
+\ba
+U_n &\sim& Poi(\lambda_u) \com \qquad f_u = 0.05 \min\left[\frac{3(x-1)}{N_v},1 \right] \com
+\\
+E_n &\sim& Poi(\lambda_e) \com \qquad f_e = \min\left[\left(\frac{3x}{N_v}\right)^2,1 \right] \per
+\ea 
+Here we assume that $\lambda_e < \lambda_u$ since we expect equivocation misbehavior to be rare. 
+
+%=============================
+\subsection{Interest and Inflation Rates}
+%=============================
+
+We define the annual interest rate, $r$, as the ratio of the total payouts to the total stakes in a given year:
+\be
+r = \frac{\sum_{T=1}^{N_T} P_T}{\sum_{n=1}^{N_n} d_n} \per
+\ee
+Using \eref{x}, we obtain the interest rate in terms of the staking rate, $x$, as
+\be \label{i}
+r(x) = \frac{1}{x D_0} \sum_{T=1}^{N_T} P_T \com
+\ee
+where $D_0$ is the total dots outstanding at the beginning of the year, and $N_T$ is the number of eras in a year, which is about $N_T = 365$ assuming an era is 24 hours long. 
+
+We define the annual inflation rate of dots as the ratio of the total payouts to the total dots outstanding in the beginning of the year as
+\be
+\pi = \frac{1}{D_0} \sum_{T=1}^{N_T} P_T \com
+\ee
+which can be also written in terms of the interest rate as $\pi = x~r(x)$ using \eref{i}.
+
+%==============================
+\subsection{Reward Sharing and Accumulation of Wealth}
+%==============================
+{\it To be worked out.}
+
+%==============================
+\subsection{Monte Carlo Simulation}
+%==============================
+{\it In progress. See the preliminary simulation for the simplified system in the accompanying jupyter notebook.}
+
+%=====================================================================================
+\section{Utility Maximizing Agents}
+\label{sec:utility}
+%=====================================================================================
+ {\it To be worked out.}
+ %=====================================================================================
+\section{A Macroeconomic Model Based on Aggregate Variables}
+\label{sec:macro}
+%=====================================================================================
+ {\it To be worked out.}
+
+\end{document}
