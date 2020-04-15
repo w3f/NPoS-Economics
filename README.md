@@ -33,13 +33,16 @@ account balances. The Notes folder include the notes for the very first version 
 
 [3 Parachain Economics: A Microeconomic Model for Parachains with Native Tokens V3 (Final Version)](https://github.com/w3f/NPoS-Economics/tree/master/Codes/3%20Parachain%20Economics)
 
+The accompanying writeups for all the microeconomic models are included in the jupyter notebooks.
+
 ## Data
 [Kusama Genesis Balances](https://github.com/w3f/NPoS-Economics/tree/master/Data)
 
 ## Notes
 [The notes for the very first version of the stochastic NPoS Economic model V1](https://github.com/w3f/NPoS-Economics/tree/master/Notes/1%20NPoS%20Economics)
 
-The accompanying writeups for all the microeconomic models are included in the jupyter notebooks. The writeups and the accompanying jupyter notebooks for the final versions of the models can be found here:
+## Final Versions
+The writeups and the accompanying jupyter notebooks for the final versions of the models can be found here:
 
 [A Microeconomic Model for Polkadot: NPoS Economics](https://hackmd.io/G_WNaIiBQRuOhaHmJl8hsg?view)
 
